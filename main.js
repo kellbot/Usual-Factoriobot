@@ -1,13 +1,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const Rcon = require('rcon');
+const { factorioInit } = require('./factorio.js');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const { token, host, port, password } = require('./config.json');
+const { token } = require('./config.json');
 
 // Create a new Discord bot instance
 const discord = new Client({ intents: [GatewayIntentBits.Guilds] });
-// connect to factorio
-const factorio = new Rcon(host, port, password);
 
 discord.commands = new Collection();
 
@@ -50,32 +48,4 @@ for (const file of eventFiles)
 
 // connect to discord
 discord.login(token);
-
-
-factorio.on('auth', function()
-{
-	// You must wait until this event is fired before sending any commands,
-	// otherwise those commands will fail.
-	console.log('Authenticated');
-	console.log('Sending command: help');
-	factorio.send('/help');
-}).on('response', function(str)
-{
-	console.log('Response: ' + str);
-}).on('error', function(err)
-{
-	console.log('Error: ' + err);
-}).on('end', function()
-{
-	console.log('Connection closed');
-	process.exit();
-});
-
-factorio.connect();
-
-const testCon = () =>
-{
-	return 'it worked';
-};
-
-module.exports = { testCon };
+factorioInit();

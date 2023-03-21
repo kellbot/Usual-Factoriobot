@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { testCon } = require('../main.js');
+const { getOnlinePlayers } = require('../factorio.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -7,6 +7,7 @@ module.exports = {
 		.setDescription('Replies with list of currently online players'),
 	async execute(interaction)
 	{
-		await interaction.reply({ content: `Players ${testCon}`, ephemeral: true });
+		getOnlinePlayers();
+		await interaction.reply({ content: 'Tried Things', ephemeral: true });
 	},
 };
