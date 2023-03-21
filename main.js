@@ -6,6 +6,8 @@ const { token, host, port, password } = require('./config.json');
 
 // Create a new Discord bot instance
 const discord = new Client({ intents: [GatewayIntentBits.Guilds] });
+// connect to factorio
+const factorio = new Rcon(host, port, password);
 
 discord.commands = new Collection();
 
@@ -49,8 +51,6 @@ for (const file of eventFiles)
 // connect to discord
 discord.login(token);
 
-// connect to factorio
-const factorio = new Rcon(host, port, password);
 
 factorio.on('auth', function()
 {
@@ -72,3 +72,10 @@ factorio.on('auth', function()
 });
 
 factorio.connect();
+
+const testCon = () =>
+{
+	return 'it worked';
+};
+
+module.exports = { testCon };

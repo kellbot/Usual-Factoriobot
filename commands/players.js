@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
+const { testCon } = require('../main.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -6,6 +7,6 @@ module.exports = {
 		.setDescription('Replies with list of currently online players'),
 	async execute(interaction)
 	{
-		await interaction.reply({ content: 'Players shown here', ephemeral: true });
+		await interaction.reply({ content: `Players ${testCon}`, ephemeral: true });
 	},
 };
