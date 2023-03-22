@@ -7,7 +7,6 @@ const factorio = new Rcon(host, port, password);
 let activeConnection = false;
 const stats = {};
 
-
 const factorioInit = () =>
 {
 
@@ -67,7 +66,6 @@ function updateCME()
 	}
 	const command = '/silent-command rcon.print("[CME] " .. serpent.line(remote.call("space-exploration", "get_solar_flares")))';
 	factorio.send(command);
-	console.log('CME Updated');
 
 }
 function relayDiscordMessage(message)
@@ -85,14 +83,17 @@ function relayDiscordMessage(message)
 function parseResponse(string)
 {
 	const prefixes = { players: 'Online players ', cme:  '[CME] ', tick: '[TICK] ' };
+
 	for (const property in prefixes)
 	{
 		if (string.startsWith(prefixes[property]))
 		{
 			stats[property] = string.replace(prefixes[property], '');
+
 		}
 	}
 
 }
+
 
 module.exports = { factorio, factorioInit, updateOnlinePlayers, stats, relayDiscordMessage, isConnected, updateCME };

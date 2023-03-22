@@ -77,7 +77,7 @@ function parseMessage(msg)
 		else if (!msg.includes('<server>'))
 		{
 			// Send incoming message from the server, which has no category or user to the Discord console channel
-			console.log('Server Message: ' + msg);
+			relayFactorioMessage(msg);
 		}
 	}
 }
@@ -101,7 +101,7 @@ discord.on('messageCreate', (message) =>
 
 discord.on('ready', () =>
 {
-	chokidar.watch(consoleLog, { ignored: /(^|[\/\\])\../ }).on('all', (event, path) =>
+	chokidar.watch(consoleLog, { ignored: /(^|[/\\])\../ }).on('all', (event, filepath) =>
 	{
 		readLastLine(consoleLog);
 	});
