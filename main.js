@@ -51,6 +51,7 @@ for (const file of eventFiles)
 discord.login(token);
 discord.on('messageCreate', (message) =>
 {
+	if (message.flags.has('Ephemeral')) return;
 	console.log(message.content);
 	const messageString = `${message.author.username}: ${message.content}`;
 	relayDiscordMessage(messageString);
