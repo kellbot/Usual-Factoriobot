@@ -11,6 +11,6 @@ module.exports = {
 		updateOnlinePlayers();
 		await interaction.deferReply({ ephemeral: true });
 		await wait(500);
-		await interaction.editReply({ content: stats.playerString, ephemeral: true });
+		await interaction.editReply({ content: stats.players, ephemeral: true });
 	},
 };

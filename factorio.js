@@ -1,10 +1,11 @@
 const Rcon = require('rcon');
+const cron = require('node-cron');
 const { host, port, password } = require('./config.json');
 
 // connect to factorio
 const factorio = new Rcon(host, port, password);
 let activeConnection = false;
-const stats = { playerString: 'Please try that again' };
+const stats = {};
 
 
 const factorioInit = () =>
@@ -16,18 +17,27 @@ const factorioInit = () =>
 		console.log('Connected');
 		// update stats
 		factorio.send('/players online');
+		factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
+		updateCME();
 	}).on('response', function(str)
 	{
-		stats.playerString = parseResponse(str);
+		parseResponse(str);
 		console.log(str);
 	}).on('error', function(err)
 	{
 		console.log('Error: ' + err);
 	}).on('end', function()
 	{
+		activeConnection = false;
 		console.log('Connection closed');
 	});
 	factorio.connect();
+
+
+	cron.schedule('*/30 * * * *', () =>
+	{
+		updateCME();
+	});
 };
 
 // Returns boolean whether there is currently an active connection
@@ -48,6 +58,18 @@ const updateOnlinePlayers = () =>
 	}
 
 };
+function updateCME()
+{
+	if (!activeConnection)
+	{
+		console.log('Could not run command, no active connection');
+		return false;
+	}
+	const command = '/silent-command rcon.print("[CME] " .. serpent.line(remote.call("space-exploration", "get_solar_flares")))';
+	factorio.send(command);
+	console.log('CME Updated');
+
+}
 function relayDiscordMessage(message)
 {
 	if (!activeConnection)
@@ -62,7 +84,15 @@ function relayDiscordMessage(message)
 
 function parseResponse(string)
 {
-	return string;
+	const prefixes = { players: 'Online players ', cme:  '[CME] ', tick: '[TICK] ' };
+	for (const property in prefixes)
+	{
+		if (string.startsWith(prefixes[property]))
+		{
+			stats[property] = string.replace(prefixes[property], '');
+		}
+	}
+
 }
 
-module.exports = { factorio, factorioInit, updateOnlinePlayers, stats, relayDiscordMessage, isConnected };
+module.exports = { factorio, factorioInit, updateOnlinePlayers, stats, relayDiscordMessage, isConnected, updateCME };

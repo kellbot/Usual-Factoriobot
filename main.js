@@ -1,6 +1,5 @@
 const fs = require('node:fs');
-const cron = require('node-cron');
-var chokidar = require("chokidar");
+const chokidar = require('chokidar');
 const path = require('node:path');
 const { factorioInit, relayDiscordMessage } = require('./factorio.js');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
@@ -48,12 +47,14 @@ for (const file of eventFiles)
 	}
 }
 
-function readLastLine(path) {
-	fs.readFile(path, 'utf-8', function (err, data) {
-		//get last line of file. 
+function readLastLine(filepath)
+{
+	fs.readFile(filepath, 'utf-8', function(err, data)
+	{
+		// get last line of file.
 		if (err) throw err;
-		var lines = data.trim().split('\n');
-		lastLine = lines.slice(-1)[0];
+		const lines = data.trim().split('\n');
+		const lastLine = lines.slice(-1)[0];
 
 		parseMessage(lastLine);
 	});
@@ -61,15 +62,20 @@ function readLastLine(path) {
 
 }
 
-function parseMessage(msg) {
-	var index = msg.indexOf(']');
-	var indexName = msg.indexOf(': ');
-	var newMsg = "`" + msg.slice(index + 2, indexName) + "`" + msg.slice(indexName);
+function parseMessage(msg)
+{
+	const index = msg.indexOf(']');
+	const indexName = msg.indexOf(': ');
+	const newMsg = '`' + msg.slice(index + 2, indexName) + '`' + msg.slice(indexName);
 
-	if (msg.length && index > 1) {
-		if (msg.slice(1, index).includes("CHAT") && !msg.includes("<server>")) {
+	if (msg.length && index > 1)
+	{
+		if (msg.slice(1, index).includes('CHAT') && !msg.includes('<server>'))
+		{
 			console.log(newMsg);
-		} else if (!msg.includes("<server>") ) {
+		}
+		else if (!msg.includes('<server>'))
+		{
 			// Send incoming message from the server, which has no category or user to the Discord console channel
 			console.log('Server Message: ' + msg);
 		}
@@ -93,15 +99,13 @@ discord.on('messageCreate', (message) =>
 	relayDiscordMessage(messageString);
 });
 
-discord.on("ready", () =>
+discord.on('ready', () =>
 {
-	chokidar.watch(consoleLog, { ignored: /(^|[\/\\])\../ }).on('all', (event, path) => {
+	chokidar.watch(consoleLog, { ignored: /(^|[\/\\])\../ }).on('all', (event, path) =>
+	{
 		readLastLine(consoleLog);
 	});
 
-	cron.schedule('1 * * *', () => {
-		console.log('triggered cron');
-	});
 });
 
 factorioInit();
