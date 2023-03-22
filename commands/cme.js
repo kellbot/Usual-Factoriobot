@@ -20,12 +20,11 @@ module.exports = {
 			// convert = to : for json parsing
 			responseString = responseString.replace(/=/g, ':');
 			responseString = responseString.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3').replace(/{{/g, '[{').replace(/}}/g, '}]');
-			console.log(responseString);
+
 			const cmeData = JSON.parse(responseString);
 			for (const planet in cmeData)
 			{
 				const secondsRemaining = (cmeData[planet][0].tick - stats.tick) / 60;
-				console.log(stats.tick);
 				const timeRemaining = formatTime(secondsRemaining);
 				response += `${planet}: ${timeRemaining} \n`;
 			}
