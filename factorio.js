@@ -4,12 +4,8 @@ const { host, port, password } = require('./config.json');
 // connect to factorio
 const factorio = new Rcon(host, port, password);
 let activeConnection = false;
+const stats = { playerString: 'Please try that again' };
 
-
-const testCon = (text) =>
-{
-	return 'it worked' + text;
-};
 
 const factorioInit = () =>
 {
@@ -18,8 +14,11 @@ const factorioInit = () =>
 	{
 		activeConnection = true;
 		console.log('Connected');
+		// update stats
+		factorio.send('/players online');
 	}).on('response', function(str)
 	{
+		stats.playerString = parseResponse(str);
 		console.log(str);
 	}).on('error', function(err)
 	{
@@ -31,14 +30,39 @@ const factorioInit = () =>
 	factorio.connect();
 };
 
-const getOnlinePlayers = () =>
+// Returns boolean whether there is currently an active connection
+const isConnected = () =>
+{
+	return activeConnection;
+};
+
+const updateOnlinePlayers = () =>
 {
 	if (!activeConnection)
 	{
 		factorioInit();
 	}
-	factorio.send('/players');
+	else
+	{
+		factorio.send('/players online');
+	}
 
 };
+function relayDiscordMessage(message)
+{
+	if (!activeConnection)
+	{
+		factorioInit();
+	}
+	const cleanMessage = message.replace(/'/g, '\\\'');
+	const command = `/silent-command game.print('[color=#7289DA][Discord]${cleanMessage}[/color]')`;
+	factorio.send(command);
 
-module.exports = { testCon, factorio, factorioInit, getOnlinePlayers };
+}
+
+function parseResponse(string)
+{
+	return string;
+}
+
+module.exports = { factorio, factorioInit, updateOnlinePlayers, stats, relayDiscordMessage, isConnected };

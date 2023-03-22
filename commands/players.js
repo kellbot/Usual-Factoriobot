@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { getOnlinePlayers } = require('../factorio.js');
+const { updateOnlinePlayers, stats } = require('../factorio.js');
+const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -7,7 +8,9 @@ module.exports = {
 		.setDescription('Replies with list of currently online players'),
 	async execute(interaction)
 	{
-		getOnlinePlayers();
-		await interaction.reply({ content: 'Tried Things', ephemeral: true });
+		updateOnlinePlayers();
+		await interaction.deferReply({ ephemeral: true });
+		await wait(500);
+		await interaction.editReply({ content: stats.playerString, ephemeral: true });
 	},
 };

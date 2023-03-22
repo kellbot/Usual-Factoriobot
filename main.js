@@ -1,11 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { factorioInit } = require('./factorio.js');
+const { factorioInit, relayDiscordMessage } = require('./factorio.js');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
 // Create a new Discord bot instance
-const discord = new Client({ intents: [GatewayIntentBits.Guilds] });
+const discord = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent] });
 
 discord.commands = new Collection();
 
@@ -48,4 +49,10 @@ for (const file of eventFiles)
 
 // connect to discord
 discord.login(token);
+discord.on('messageCreate', (message) =>
+{
+	console.log(message.content);
+	const messageString = `${message.author.username}: ${message.content}`;
+	relayDiscordMessage(messageString);
+});
 factorioInit();
