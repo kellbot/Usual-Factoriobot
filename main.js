@@ -72,12 +72,12 @@ function parseMessage(msg)
 	{
 		if (msg.slice(1, index).includes('CHAT') && !msg.includes('<server>'))
 		{
-			console.log(newMsg);
+			relayFactorioMessage(newMsg);
 		}
 		else if (!msg.includes('<server>'))
 		{
 			// Send incoming message from the server, which has no category or user to the Discord console channel
-			relayFactorioMessage(msg);
+			console.log(msg);
 		}
 	}
 }
@@ -86,7 +86,7 @@ function relayFactorioMessage(message)
 {
 //	const channel = discord.channels.cache.get(channelId);
 //	channel.send(message);
-	if (message.startsWith('[CHAT]')) discord.users.send(debugId, message);
+	discord.users.send(debugId, message);
 }
 
 // connect to discord
