@@ -84,9 +84,9 @@ function parseMessage(msg)
 
 function relayFactorioMessage(message)
 {
-//	const channel = discord.channels.cache.get(channelId);
-//	channel.send(message);
-	discord.users.send(debugId, message);
+	const channel = discord.channels.cache.get(channelId);
+	channel.send(message);
+//	discord.users.send(debugId, message);
 }
 
 // connect to discord
