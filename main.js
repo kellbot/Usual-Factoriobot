@@ -94,6 +94,9 @@ discord.login(token);
 discord.on('messageCreate', (message) =>
 {
 	if (message.flags.has('Ephemeral')) return;
+	if (!message.content.length > 0) return;
+	if (message.author.bot) return;
+	
 	console.log(message.content);
 	const messageString = `${message.author.username}: ${message.content}`;
 	relayDiscordMessage(messageString);
