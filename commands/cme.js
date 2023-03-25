@@ -16,10 +16,7 @@ module.exports = {
 		if (stats.cme)
 		{
 			response = 'Upcoming CMEs: \n';
-			let responseString = stats.cme;
-			// convert = to : for json parsing
-			responseString = responseString.replace(/=/g, ':');
-			responseString = responseString.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3').replace(/{{/g, '[{').replace(/}}/g, '}]');
+			const responseString = stats.cme;
 
 			const cmeData = JSON.parse(responseString);
 			for (const planet in cmeData)

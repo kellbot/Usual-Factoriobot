@@ -21,7 +21,6 @@ const factorioInit = () =>
 	}).on('response', function(str)
 	{
 		parseResponse(str);
-		console.log(str);
 	}).on('error', function(err)
 	{
 		console.log('Error: ' + err);
@@ -32,10 +31,15 @@ const factorioInit = () =>
 	});
 	factorio.connect();
 
-
-	cron.schedule('*/30 * * * *', () =>
+	// This data doesn't actually change very often so every 6 hours is plenty
+	cron.schedule('0 */6 * * *', () =>
 	{
 		updateCME();
+	});
+	// because ticks can vary in length we need to update the current tick regularly
+	cron.schedule('* * * * *', () =>
+	{
+		factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
 	});
 };
 
@@ -67,6 +71,9 @@ function updateCME()
 	const command = '/silent-command rcon.print("[CME] " .. serpent.line(remote.call("space-exploration", "get_solar_flares")))';
 	factorio.send(command);
 
+	// update the current tick as well
+	factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
+
 }
 function relayDiscordMessage(message)
 {
@@ -88,7 +95,14 @@ function parseResponse(string)
 	{
 		if (string.startsWith(prefixes[property]))
 		{
-			stats[property] = string.replace(prefixes[property], '');
+			let data = string.replace(prefixes[property], '');
+			if (property == 'cme')
+			{
+				// convert = to : for json parsing
+				data = data.replace(/=/g, ':').replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3').replace(/{{/g, '[{').replace(/}}/g, '}]');
+
+			}
+			stats[property] = data;
 
 		}
 	}
