@@ -1,7 +1,8 @@
 const fs = require('node:fs');
+const cron = require('node-cron');
 const chokidar = require('chokidar');
 const path = require('node:path');
-const { factorioInit, relayDiscordMessage } = require('./factorio.js');
+const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token, channelId, consoleLog, debugId } = require('./config.json');
 
@@ -15,6 +16,9 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+// This holds the tick of the last CME warning so it doesn't keep firing when the game is paused
+let cmeLastWarned = 0;
 
 
 for (const file of commandFiles)
@@ -52,7 +56,11 @@ function readLastLine(filepath)
 	fs.readFile(filepath, 'utf-8', function(err, data)
 	{
 		// get last line of file.
-		if (err) throw err;
+		if (err)
+		{
+			console.log(err);
+			return false;
+		}
 		const lines = data.trim().split('\n');
 		const lastLine = lines.slice(-1)[0];
 
@@ -89,6 +97,44 @@ function relayFactorioMessage(message)
 //	discord.users.send(debugId, message);
 }
 
+function calculateTime(seconds)
+{
+	const days = Math.floor(seconds / (3600 * 24));
+	const hours = Math.floor(seconds % (3600 * 24) / 3600);
+	const minutes = Math.floor(seconds % 3600 / 60);
+	return { days: days, hours: hours, minutes: minutes };
+}
+
+
+function warnCME(cmeData)
+{
+	// Don't run if we already warned this tick (i.e. the game is paused)
+	if (cmeLastWarned == stats.tick) return;
+
+	cmeData = JSON.parse(cmeData);
+
+	for (const planet in cmeData)
+	{
+		// warn at one day, 12 hours, 6 hours, 3 hours, 1 hour
+		const sph = 60 * 60;
+		const warnIntervals = [sph * 24, sph * 12, sph * 6, sph * 3, sph];
+
+		for (const seconds of warnIntervals)
+		{
+			// each tick lasts roughly 60 seconds
+			const timeToGo = (cmeData[planet][0].tick - stats.tick) / 60;
+			if (Math.abs(timeToGo - seconds) <= 60)
+			{
+				const timeLeft = calculateTime(timeToGo);
+				relayFactorioMessage(`Warning: CME headed for ${planet} in ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes`);
+				cmeLastWarned = stats.tick;
+			}
+		}
+	}
+}
+
+
+factorioInit();
 // connect to discord
 discord.login(token);
 discord.on('messageCreate', (message) =>
@@ -102,6 +148,12 @@ discord.on('messageCreate', (message) =>
 	relayDiscordMessage(messageString);
 });
 
+// check for CME warnings every other minute
+cron.schedule('* * * * *', () =>
+{
+	warnCME(stats.cme);
+});
+
 discord.on('ready', () =>
 {
 	chokidar.watch(consoleLog, { ignored: /(^|[/\\])\../ }).on('all', (event, filepath) =>
@@ -109,6 +161,6 @@ discord.on('ready', () =>
 		readLastLine(consoleLog);
 	});
 
-});
+	warnCME(stats.cme);
 
-factorioInit();
+});
