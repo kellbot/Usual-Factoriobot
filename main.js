@@ -3,8 +3,9 @@ const cron = require('node-cron');
 const chokidar = require('chokidar');
 const path = require('node:path');
 const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, ActivityType  } = require('discord.js');
 const { token, channelId, consoleLog, debugId } = require('./config.json');
+
 
 // Create a new Discord bot instance
 const discord = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessages,
@@ -111,8 +112,6 @@ function warnCME(cmeData)
 	// Don't run if we already warned this tick (i.e. the game is paused)
 	if (cmeLastWarned == stats.tick) return;
 
-	cmeData = JSON.parse(cmeData);
-
 	for (const planet in cmeData)
 	{
 		// warn at one day, 12 hours, 6 hours, 3 hours, 1 hour
@@ -123,7 +122,7 @@ function warnCME(cmeData)
 		{
 			// each tick lasts roughly 60 seconds
 			const timeToGo = (cmeData[planet][0].tick - stats.tick) / 60;
-			if (Math.abs(timeToGo - seconds) <= 60)
+			if (Math.abs(timeToGo - seconds) <= 59)
 			{
 				const timeLeft = calculateTime(timeToGo);
 				relayFactorioMessage(`Warning: CME headed for ${planet} in ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes`);
@@ -132,6 +131,24 @@ function warnCME(cmeData)
 		}
 	}
 }
+
+
+
+function updateBotStatus(){
+	let activityString;
+	const playerCount = stats.players.charAt(1);
+	if (playerCount == '0')
+	{
+		activityString = "the factory sleep";
+	}
+	else
+	{
+		activityString = `${playerCount} people grow the factory`;
+	}
+		discord.user.setActivity(activityString, { type: ActivityType.Watching })
+}
+
+
 
 
 factorioInit();
@@ -148,7 +165,7 @@ discord.on('messageCreate', (message) =>
 	relayDiscordMessage(messageString);
 });
 
-// check for CME warnings every other minute
+// check for CME warnings every minute
 cron.schedule('* * * * *', () =>
 {
 	warnCME(stats.cme);
@@ -162,5 +179,12 @@ discord.on('ready', () =>
 	});
 
 	warnCME(stats.cme);
+	updateBotStatus();
+	// Update player count every 5 minutes
+	cron.schedule('*/5 * * * *', () =>
+	{
+		updateBotStatus();
+	});
+
 
 });

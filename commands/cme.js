@@ -18,7 +18,7 @@ module.exports = {
 			response = 'Upcoming CMEs: \n';
 			const responseString = stats.cme;
 
-			const cmeData = JSON.parse(responseString);
+			const cmeData = responseString;
 			for (const planet in cmeData)
 			{
 				const secondsRemaining = (cmeData[planet][0].tick - stats.tick) / 60;

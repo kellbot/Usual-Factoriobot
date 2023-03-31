@@ -1,6 +1,7 @@
 const Rcon = require('rcon');
 const cron = require('node-cron');
 const { host, port, password } = require('./config.json');
+const { format, parse } = require('lua-json');
 
 // connect to factorio
 const factorio = new Rcon(host, port, password);
@@ -98,8 +99,9 @@ function parseResponse(string)
 			let data = string.replace(prefixes[property], '');
 			if (property == 'cme')
 			{
+				console.log(data);
 				// convert = to : for json parsing
-				data = data.replace(/=/g, ':').replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3').replace(/{{/g, '[{').replace(/}}/g, '}]');
+				data = parse('return ' + data);
 
 			}
 			stats[property] = data;
