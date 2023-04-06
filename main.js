@@ -6,7 +6,7 @@ const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, CommandInteractionOptionResolver  } = require('discord.js');
 const { Ignored } = require('./storage.js');
 
-const { token, channelId, debugId } = require('./data/config.json');
+const { token, channelId } = require('./data/config.json');
 const consoleLog = './data/console.log';
 
 
