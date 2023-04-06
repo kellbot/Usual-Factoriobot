@@ -3,7 +3,7 @@ const cron = require('node-cron');
 const chokidar = require('chokidar');
 const path = require('node:path');
 const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
-const { Client, Collection, Events, GatewayIntentBits, ActivityType  } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, ActivityType, CommandInteractionOptionResolver  } = require('discord.js');
 const { token, channelId, consoleLog, debugId } = require('./config.json');
 const { Ignored } = require('./storage.js');
 
@@ -116,24 +116,35 @@ function warnCME(cmeData)
 	// Don't run if we already warned this tick (i.e. the game is paused)
 	if (cmeLastWarned == stats.tick) return;
 
-	for (const planet in cmeData)
+	Ignored.findAll({ attributes: ['surface']}).then((surfaceList) => 
 	{
-		// warn at one day, 12 hours, 6 hours, 3 hours, 1 hour
-		const sph = 60 * 60;
-		const warnIntervals = [sph * 24, sph * 12, sph * 6, sph * 3, sph];
 
-		for (const seconds of warnIntervals)
+		for (const planet in cmeData)
 		{
-			// each tick lasts roughly 60 seconds
-			const timeToGo = (cmeData[planet][0].tick - stats.tick) / 60;
-			if (Math.abs(timeToGo - seconds) < 30)
+
+			//we are ignoring this surface
+			if (surfaceList.some((obj) => obj.surface === planet))
 			{
-				const timeLeft = calculateTime(timeToGo);
-				relayFactorioMessage(`Warning: CME headed for ${planet} in ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes`);
-				cmeLastWarned = stats.tick;
+				continue; //don't warn about this one
+			}
+
+			// warn at one day, 12 hours, 6 hours, 3 hours, 1 hour
+			const sph = 60 * 60;
+			const warnIntervals = [sph * 24, sph * 12, sph * 6, sph * 3, sph];
+
+			for (const seconds of warnIntervals)
+			{
+				// each tick lasts roughly 60 seconds
+				const timeToGo = (cmeData[planet][0].tick - stats.tick) / 60;
+				if (Math.abs(timeToGo - seconds) < 30)
+				{
+					const timeLeft = calculateTime(timeToGo);
+					relayFactorioMessage(`Warning: CME headed for ${planet} in ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes`);
+					cmeLastWarned = stats.tick;
+				}
 			}
 		}
-	}
+	});
 }
 
 

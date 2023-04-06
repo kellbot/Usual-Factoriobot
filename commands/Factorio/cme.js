@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { updateCME, stats } = require('../../factorio.js');
+const { Ignored } = require('../../storage.js');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
@@ -9,21 +10,37 @@ module.exports = {
 	async execute(interaction)
 	{
 		let response = 'No response from server';
+		let ignored = [];
 		updateCME();
 		await interaction.deferReply({ ephemeral: true });
 		await wait(500);
 		// remove the CME prefix
 		if (stats.cme)
 		{
+			const surfaceList = await Ignored.findAll({ attributes: ['surface']});
+			
 			response = 'Upcoming CMEs: \n';
 			const responseString = stats.cme;
 
 			const cmeData = responseString;
 			for (const planet in cmeData)
 			{
-				const secondsRemaining = (cmeData[planet][0].tick - stats.tick) / 60;
-				const timeRemaining = formatTime(secondsRemaining);
-				response += `${planet}: ${timeRemaining} \n`;
+				//we are ignoring this surface
+				if (surfaceList.some((obj) => obj.surface === planet))
+				{
+					ignored.push(planet);
+				}
+				else
+				{
+					const secondsRemaining = (cmeData[planet][0].tick - stats.tick) / 60;
+					const timeRemaining = formatTime(secondsRemaining);
+					response += `${planet}: ${timeRemaining} \n`;
+				}
+			}
+			if (ignored.length > 0) 
+			{
+				const ignoreString = ignored.join(", ");
+				response += `Ignoring warnings from: ${ignoreString}`;
 			}
 		}
 

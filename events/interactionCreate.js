@@ -43,6 +43,22 @@ module.exports = {
 					return interaction.reply('Something went wrong.');
 				}
 			}
+			if (commandName === 'unignore')
+			{
+				const surfaceName = interaction.options.getString('surface');
+				try
+				{
+					const rowCount = await Ignored.destroy({where: { surface: surfaceName } });
+					if (!rowCount) return interaction.reply(`${surfaceName} wasn't being ignored.`);
+
+					return interaction.reply(`Warnings are now on for ${surfaceName}`);
+				}
+				catch(error)
+				{
+					console.log(error);
+					return interaction.reply('Something went wrong.');
+				}
+			}
 			
 			await command.execute(interaction);
 		}
