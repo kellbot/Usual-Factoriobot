@@ -5,7 +5,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 	dialect: 'sqlite',
 	logging: false,
 	// SQLite only
-	storage: 'data/database.sqlite',
+	storage: '/opt/Factoriobot/data/database.sqlite',
 });
 
 const Ignored = sequelize.define('ignored', {

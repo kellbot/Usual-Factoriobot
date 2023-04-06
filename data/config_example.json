@@ -1,0 +1,9 @@
+{
+	"token": "YOURDISCORDTOKENHERE",
+	"clientId": "DISCORDCLIENTID",
+	"guildId": "DISCORDGUILDID",
+	"channelId": "DISCORDCHANNELID",
+	"host": "127.0.0.1",
+	"port": 27016,
+	"password": "RCONPASSWORD"
+}
