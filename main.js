@@ -3,8 +3,9 @@ const cron = require('node-cron');
 const chokidar = require('chokidar');
 const path = require('node:path');
 const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
-const { Client, Collection, GatewayIntentBits, ActivityType  } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, ActivityType  } = require('discord.js');
 const { token, channelId, consoleLog, debugId } = require('./config.json');
+const { Settings } = require('./storage.js');
 
 
 // Create a new Discord bot instance
@@ -13,30 +14,33 @@ const discord = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBi
 
 discord.commands = new Collection();
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const foldersPath = path.join(__dirname, 'commands');
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 // This holds the tick of the last CME warning so it doesn't keep firing when the game is paused
 let cmeLastWarned = 0;
+// This holds the most recent bot stats
+let botStatus = 'the factory';
 
+discord.commands = new Collection();
 
-for (const file of commandFiles)
-{
-	const filePath = path.join(commandsPath, file);
-	const command = require(filePath);
-	// Set a new item in the Collection with the key as the command name and the value as the exported module
-	if ('data' in command && 'execute' in command)
-	{
-		discord.commands.set(command.data.name, command);
-	}
-	else
-	{
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+const commandFolders = fs.readdirSync(foldersPath);
+
+for (const folder of commandFolders) {
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		// Set a new item in the Collection with the key as the command name and the value as the exported module
+		if ('data' in command && 'execute' in command) {
+			discord.commands.set(command.data.name, command);
+		} else {
+			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		}
 	}
 }
-
 
 for (const file of eventFiles)
 {
@@ -122,7 +126,7 @@ function warnCME(cmeData)
 		{
 			// each tick lasts roughly 60 seconds
 			const timeToGo = (cmeData[planet][0].tick - stats.tick) / 60;
-			if (Math.abs(timeToGo - seconds) <= 59)
+			if (Math.abs(timeToGo - seconds) < 30)
 			{
 				const timeLeft = calculateTime(timeToGo);
 				relayFactorioMessage(`Warning: CME headed for ${planet} in ${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes`);
@@ -134,26 +138,32 @@ function warnCME(cmeData)
 
 
 
-function updateBotStatus(){
-	let activityString;
-	const playerCount = stats.players.charAt(1);
+function updateBotStatus(playerCount){
 	if (playerCount == '0')
 	{
 		activityString = "the factory sleep";
+	}
+	else if (playerCount == '1')
+	{
+		activityString = `${playerCount} person grow the factory`;
 	}
 	else
 	{
 		activityString = `${playerCount} people grow the factory`;
 	}
-		discord.user.setActivity(activityString, { type: ActivityType.Watching })
+	// no need to update if it's the same
+	if (activityString == botStatus) return;
+
+	discord.user.setActivity(activityString, { type: ActivityType.Watching })
 }
 
 
 
 
+
 factorioInit();
-// connect to discord
-discord.login(token);
+
+
 discord.on('messageCreate', (message) =>
 {
 	if (message.flags.has('Ephemeral')) return;
@@ -171,20 +181,26 @@ cron.schedule('* * * * *', () =>
 	warnCME(stats.cme);
 });
 
+// Update player count every 2 minutes
+cron.schedule('* * * * *', () =>
+{
+	const playerCount = stats.players.charAt(1);
+	if (playerCount) updateBotStatus(playerCount);
+});
+
 discord.on('ready', () =>
 {
+	Settings.sync();
 	chokidar.watch(consoleLog, { ignored: /(^|[/\\])\../ }).on('all', (event, filepath) =>
 	{
 		readLastLine(consoleLog);
 	});
 
 	warnCME(stats.cme);
-	updateBotStatus();
-	// Update player count every 5 minutes
-	cron.schedule('*/5 * * * *', () =>
-	{
-		updateBotStatus();
-	});
 
 
 });
+
+
+// connect to discord
+discord.login(token);

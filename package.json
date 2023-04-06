@@ -14,7 +14,9 @@
     "discord.js": "^14.8.0",
     "lua-json": "^1.0.1",
     "node-cron": "^3.0.2",
-    "rcon": "^1.1.0"
+    "rcon": "^1.1.0",
+    "sequelize": "^6.30.0",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "eslint": "^8.36.0"

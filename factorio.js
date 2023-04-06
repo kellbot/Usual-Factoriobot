@@ -41,6 +41,7 @@ const factorioInit = () =>
 	cron.schedule('* * * * *', () =>
 	{
 		factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
+		factorio.send('/players online');
 	});
 };
 

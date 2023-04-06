@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { updateOnlinePlayers, stats } = require('../factorio.js');
+const { updateOnlinePlayers, stats } = require('../../factorio.js');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
