@@ -7,7 +7,21 @@ This is a Discord bot to provide an interface between a Discord channel and Fact
 This package was designed to be used by myself, and is offered without support or warranty. You can grab the [Docker image](https://hub.docker.com/r/kellbot/usual-factoriobot), 
 for which it was designed, or attempt to build it from source.
 
-Once installed copy config_example.json and fill with your own values.
+You will need a folder to store persistent data (settings data, config). 
+Once config_example.json into this folder and fill with your own values.
+
+If your server does not output the console log to this folder you will need to add it as a volume.
+
+### Example docker compose
+```
+  bot:
+    image: "kellbot/usual-factoriobot:latest"
+    volumes:
+      - /opt/botdata:/opt/Factoriobot/data
+      - /opt/factorio/console.log:/opt/Factoribot/data/console.log
+```
+
+
 
 ## Features
 
