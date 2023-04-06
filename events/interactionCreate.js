@@ -5,7 +5,7 @@ module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction)
 	{
-		if (!interaction.isChatInputCommand()) return;
+		// if (!interaction.isChatInputCommand()) return;
 
 		const command = interaction.client.commands.get(interaction.commandName);
 		const { commandName } = interaction;
@@ -31,8 +31,8 @@ module.exports = {
 						last_updated: Date.now()
 						
 						});
-	
-					return interaction.reply(`Silencing warnings for ${surface}`);
+
+					return interaction.reply({ content: `Silencing warnings for ${surface}`, ephemeral: true });
 				}
 				catch (error)
 				{
@@ -49,9 +49,9 @@ module.exports = {
 				try
 				{
 					const rowCount = await Ignored.destroy({where: { surface: surfaceName } });
-					if (!rowCount) return interaction.reply(`${surfaceName} wasn't being ignored.`);
+					if (!rowCount) return interaction.reply({ content:`${surfaceName} wasn't being ignored.`, ephemeral: true });
 
-					return interaction.reply(`Warnings are now on for ${surfaceName}`);
+					return interaction.reply({ content: `Warnings are now on for ${surfaceName}`, ephemeral: true });
 				}
 				catch(error)
 				{

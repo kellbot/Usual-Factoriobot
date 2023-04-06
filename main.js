@@ -4,8 +4,10 @@ const chokidar = require('chokidar');
 const path = require('node:path');
 const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, CommandInteractionOptionResolver  } = require('discord.js');
-const { token, channelId, consoleLog, debugId } = require('./config.json');
 const { Ignored } = require('./storage.js');
+
+const { token, channelId, debugId } = require('./data/config.json');
+const consoleLog = './data/console.log';
 
 
 // Create a new Discord bot instance
@@ -169,12 +171,6 @@ function updateBotStatus(playerCount){
 }
 
 
-
-
-
-factorioInit();
-
-
 discord.on('messageCreate', (message) =>
 {
 	if (message.flags.has('Ephemeral')) return;
@@ -201,7 +197,7 @@ cron.schedule('* * * * *', () =>
 
 discord.on('ready', () =>
 {
-	Ignored.sync();
+
 	chokidar.watch(consoleLog, { ignored: /(^|[/\\])\../ }).on('all', (event, filepath) =>
 	{
 		readLastLine(consoleLog);
@@ -212,6 +208,9 @@ discord.on('ready', () =>
 
 });
 
+Ignored.sync();
+
+factorioInit();
 
 // connect to discord
 discord.login(token);

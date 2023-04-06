@@ -5,7 +5,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 	dialect: 'sqlite',
 	logging: false,
 	// SQLite only
-	storage: 'database.sqlite',
+	storage: 'data/database.sqlite',
 });
 
 const Ignored = sequelize.define('ignored', {

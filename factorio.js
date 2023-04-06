@@ -1,6 +1,6 @@
 const Rcon = require('rcon');
 const cron = require('node-cron');
-const { host, port, password } = require('./config.json');
+const { host, port, password } = require('./data/config.json');
 const { format, parse } = require('lua-json');
 
 // connect to factorio
