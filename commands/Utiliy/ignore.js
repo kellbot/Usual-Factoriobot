@@ -3,8 +3,11 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ignore')
-		.setDescription('Silence warnings for a given zone'),
+		.setDescription('Silence warnings for a given zone')
+		.addStringOption(option =>
+			option.setName('surface').setDescription('The planet or surface to ignore').setRequired(true)),
 	async execute(interaction) {
-		return interaction.reply('OK boss');
+		const surface =  interaction.options.getString('surface');
+		return interaction.reply('Looking at ' + surface);
 	},
 };

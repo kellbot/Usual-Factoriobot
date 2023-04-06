@@ -5,7 +5,7 @@ const path = require('node:path');
 const { factorioInit, relayDiscordMessage, stats } = require('./factorio.js');
 const { Client, Collection, Events, GatewayIntentBits, ActivityType  } = require('discord.js');
 const { token, channelId, consoleLog, debugId } = require('./config.json');
-const { Settings } = require('./storage.js');
+const { Ignored } = require('./storage.js');
 
 
 // Create a new Discord bot instance
@@ -190,7 +190,7 @@ cron.schedule('* * * * *', () =>
 
 discord.on('ready', () =>
 {
-	Settings.sync();
+	Ignored.sync();
 	chokidar.watch(consoleLog, { ignored: /(^|[/\\])\../ }).on('all', (event, filepath) =>
 	{
 		readLastLine(consoleLog);

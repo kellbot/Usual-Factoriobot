@@ -8,14 +8,14 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 	storage: 'database.sqlite',
 });
 
-const Settings = sequelize.define('settings', {
+const Ignored = sequelize.define('ignored', {
     key: {
         type: Sequelize.STRING,
         unique: true,
     },
-    value: Sequelize.TEXT,
+    surface: Sequelize.TEXT,
     set_by: Sequelize.STRING,
     last_updated: Sequelize.DATE
 });
 
-module.exports = { Settings };
+module.exports = { Ignored };
