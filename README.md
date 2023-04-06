@@ -18,6 +18,6 @@ The bot will warn about upcoming Coronal Mass Ejections at 1 day, 12 hour, 6 hou
 
 ## Commands
 
-`/cme` responds with the times of upcoming Coronal Mass Ejections
-`/players` reports the players currently on the server
-`/ignore [surface name]` will turn off CME warnings for the given surface while `/unignore [surface name]` turns them back on. 
+* `/cme` responds with the times of upcoming Coronal Mass Ejections
+* `/players` reports the players currently on the server
+* `/ignore [surface name]` will turn off CME warnings for the given surface while `/unignore [surface name]` turns them back on. 
