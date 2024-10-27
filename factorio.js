@@ -25,7 +25,8 @@ const factorioInit = () =>
 		parseResponse(str);
 	}).on('error', function(err)
 	{
-		console.log('Error: ' + err);
+		console.log('RCON: ' + err);
+		console.log("Using" + host + ":" + port + ", " + password);
 	}).on('end', function()
 	{
 		activeConnection = false;
