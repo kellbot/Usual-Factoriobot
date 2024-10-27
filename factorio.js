@@ -17,8 +17,9 @@ const factorioInit = () =>
 		console.log('Connected');
 		// update stats
 		factorio.send('/players online');
-		factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
-		updateCME();
+	// Turned off for Space Age
+	//	factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
+	//	updateCME();
 	}).on('response', function(str)
 	{
 		parseResponse(str);
@@ -33,14 +34,16 @@ const factorioInit = () =>
 	factorio.connect();
 
 	// This data doesn't actually change very often so every 6 hours is plenty
+	/* 
 	cron.schedule('0 */6 * * *', () =>
 	{
 		updateCME();
 	});
+	*/
 	// because ticks can vary in length we need to update the current tick regularly
 	cron.schedule('* * * * *', () =>
 	{
-		factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
+	//	factorio.send('/silent-command rcon.print("[TICK] " .. game.tick)');
 		factorio.send('/players online');
 	});
 };
