@@ -34,12 +34,12 @@ const factorioInit = () =>
 	factorio.connect();
 
 	// This data doesn't actually change very often so every 6 hours is plenty
-	/* 
-	cron.schedule('0 */6 * * *', () =>
-	{
-		updateCME();
-	});
-	*/
+	 
+	//cron.schedule('0 */6 * * *', () =>
+	//{
+	//	updateCME();
+	//});
+	
 	// because ticks can vary in length we need to update the current tick regularly
 	cron.schedule('* * * * *', () =>
 	{
